@@ -1,0 +1,37 @@
+route_id,service_id,trip_id,trip_headsign,direction_id,shape_id
+PEA,DIARIO,PEA_0_T,Peaje,0,PEA_0
+PEA,DIARIO,PEA_1_T,Terminal Urbano,1,PEA_1
+CHI,DIARIO,CHI_0_T,Av. Chilacos,0,CHI_0
+CHI,DIARIO,CHI_1_T,Terminal Urbano,1,CHI_1
+CDP,DIARIO,CDP0_0_T,Cerca de Piedra,0,CDP0_0
+CDP,DIARIO,CDP0_1_T,Terminal Urbano,1,CDP0_1
+CDP,DIARIO,CDP1_0_T,20 de Julio,0,CDP1_0
+CDP,DIARIO,CDP1_1_T,Terminal Urbano,1,CDP1_1
+JUN,DIARIO,JUN_0_T,Las Juntas (Variante),0,JUN_0
+JUN,DIARIO,JUN_1_T,Terminal Urbano,1,JUN_1
+ALE,DIARIO,ALE_0_T,Alejandría,0,ALE_0
+ALE,DIARIO,ALE_1_T,Terminal Urbano,1,ALE_1
+FAG,DIARIO,FAG_0_T,Fagua,0,FAG_0
+FAG,DIARIO,FAG_1_T,Terminal Urbano,1,FAG_1
+GUA,DIARIO,GUA_0_T,Guanatá,0,GUA_0
+GUA,DIARIO,GUA_1_T,Terminal Urbano,1,GUA_1
+SIN,DIARIO,SIN_0_T,Sindamanoy,0,SIN_0
+SIN,DIARIO,SIN_1_T,Terminal Urbano,1,SIN_1
+BOJ,DIARIO,BOJ_0_T,Bojacá,0,BOJ_0
+BOJ,DIARIO,BOJ_1_T,Terminal Urbano,1,BOJ_1
+FON,DIARIO,FON_0_T,Fonquetá,0,FON_0
+FON,DIARIO,FON_1_T,Terminal Urbano,1,FON_1
+TIQ,DIARIO,TIQ_0_T,Tiquiza,0,TIQ_0
+TIQ,DIARIO,TIQ_1_T,Terminal Urbano,1,TIQ_1
+BAL,DIARIO,BAL_0_T,La Balsa,0,BAL_0
+BAL,DIARIO,BAL_1_T,Terminal Urbano,1,BAL_1
+SAM,DIARIO,SAM_0_T,Samaria,0,SAM_0
+SAM,DIARIO,SAM_1_T,Terminal Urbano,1,SAM_1
+CAR,DIARIO,CAR_0_T,La Caro,0,CAR_0
+CAR,DIARIO,CAR_1_T,Terminal Urbano,1,CAR_1
+YER,DIARIO,YER_0_T,Yerbabuena,0,YER_0
+YER,DIARIO,YER_1_T,Terminal Urbano,1,YER_1
+CEN,DIARIO,CEN_0_T,Centro Chía,0,CEN_0
+CEN,DIARIO,CEN_1_T,Terminal Urbano,1,CEN_1
+BOS,DIARIO,BOS_0_T,El Bosque,0,BOS_0
+BOS,DIARIO,BOS_1_T,Terminal Urbano,1,BOS_1
