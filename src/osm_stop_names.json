@@ -1,0 +1,22 @@
+{
+  "_comment": "GTFS stop names for matched OSM stops. Most OSM stops have no name tag; names are built from the road and a nearby landmark (OSM). Improve the names in OSM and here.",
+  "n4225223125": "Autopista Norte – Clínica Universidad de La Sabana",
+  "n3225856867": "Autopista Norte – Olímpica",
+  "n8200005453": "Autopista Norte – Olímpica",
+  "n1422627917": "Autopista Norte – UNICOC",
+  "n8200005451": "Autopista Norte – UNICOC",
+  "n3225856431": "Autopista Norte – Universidad El Bosque",
+  "n3225856452": "Autopista Norte – Centro de Eventos",
+  "n8200005450": "Autopista Norte – Centro de Eventos",
+  "n13931452123": "Autopista Norte – Cuernavaca",
+  "n5332128685": "Autopista Norte – Cuernavaca",
+  "n1422627964": "Autopista Norte – Primax",
+  "n3225856415": "Autopista Norte – Pescadero",
+  "n4879348923": "Yerbabuena Alta",
+  "n6552022485": "Vía Chía–Cajicá – Sabana Café",
+  "n6552022283": "Vía Chía–Cajicá – Fontanar",
+  "n6552022272": "Paradero Fontanar",
+  "n12498332785": "Vía Bogotá–La Caro – IE Fusca",
+  "n5122426530": "Calle 2 con Carrera 3",
+  "n10069708106": "Cajicá – Carrera 5"
+}

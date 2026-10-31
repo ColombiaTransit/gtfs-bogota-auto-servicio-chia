@@ -23,6 +23,35 @@ def tmin(s):
     h, m = s.split(":")
     return int(h) * 60 + int(m)
 
+def hms_s(sec):
+    sec = int(round(sec))
+    return f"{sec // 3600:02d}:{sec % 3600 // 60:02d}:{sec % 60:02d}"
+
+# Intermediate stops matched from OpenStreetMap (src/match_osm_stops.py)
+OSM_STOPS = {}
+_p = os.path.join(SP, "osm_stops.json")
+if os.path.exists(_p):
+    OSM_STOPS = json.load(open(_p))
+OSM_NAMES = json.load(open(os.path.join(SP, "osm_stop_names.json")))
+_osm_stop_rows = {}
+
+def trip_stop_times(tid, a, b, tt_min, km, osm_key):
+    """First/last stop plus OSM intermediate stops, times interpolated by distance."""
+    rows = [[tid, "00:00:00", "00:00:00", a, 1, "0.000", 1]]
+    total_m = km * 1000
+    seq = 2
+    for osm_id, name, lat, lon, along in OSM_STOPS.get(osm_key, []):
+        along = min(max(along, 0), total_m)
+        t = hms_s(tt_min * 60 * along / total_m)
+        sid = f"OSM_{osm_id}"
+        if sid not in _osm_stop_rows:
+            _osm_stop_rows[sid] = [sid, OSM_NAMES.get(osm_id) or name or f"Parada {osm_id}",
+                                   f"{lat:.6f}", f"{lon:.6f}", "0", ""]
+        rows.append([tid, t, t, sid, seq, f"{along / 1000:.3f}", 0])
+        seq += 1
+    rows.append([tid, hms(tt_min), hms(tt_min), b, seq, f"{km:.3f}", 1])
+    return rows
+
 # route_id, naam bestemming, layer, start, eind, headway (min), tarief, origin-naam
 ROUTES = [
     ("PEA", "Peaje", ["p1_11_peaje_project"], "04:55", "20:00", 3, 2000),
@@ -92,8 +121,7 @@ for rid, dest, layers, st, en, hw, price in ROUTES:
             tid = f"{shp}_T"
             head = tname if d == 0 else "Terminal Urbano"
             trips.append([rid, "DIARIO", tid, head, d, shp])
-            stop_times.append([tid, "00:00:00", "00:00:00", a, 1, "0.000", 0])
-            stop_times.append([tid, hms(tt), hms(tt), b, 2, f"{km:.3f}", 0])
+            stop_times.extend(trip_stop_times(tid, a, b, tt, km, f"{L}_{d}"))
             # ida: vertrek vanaf Terminal volgens site; regreso: zelfde venster, verschoven met rijtijd
             s = tmin(st) + off + (0 if d == 0 else tt)
             e_ = tmin(en) + (0 if d == 0 else tt) + 1  # end_time exclusief
@@ -154,14 +182,14 @@ for rid, key, o, dst, st, en, hw, price in INTER_ROUTES:
         tt = max(5, round(g["min"] * TRAFFIC_FACTOR))
         tid = f"{shp}_T"
         trips.append([rid, "DIARIO", tid, SHORT[b], d, shp])
-        stop_times.append([tid, "00:00:00", "00:00:00", inter_sid(a), 1, "0.000", 0])
-        stop_times.append([tid, hms(tt), hms(tt), inter_sid(b), 2, f"{km:.3f}", 0])
+        stop_times.extend(trip_stop_times(tid, inter_sid(a), inter_sid(b), tt, km, f"I_{key}_{d}"))
         s = tmin(st) + (0 if d == 0 else tt)
         e_ = tmin(en) + (0 if d == 0 else tt) + 1
         freqs.append([tid, hms(s), hms(e_), hw, 0])
         report.append(f"{shp:10s} {km:5.1f} km  {tt:3d} min  {hms(s)}-{hms(e_ - 1)} every {hw}s")
 
 w("agency.txt", ["agency_id", "agency_name", "agency_url", "agency_timezone", "agency_lang", "agency_phone"], agency)
+stops.extend(_osm_stop_rows.values())
 w("stops.txt", ["stop_id", "stop_name", "stop_lat", "stop_lon", "location_type", "parent_station"], stops)
 w("routes.txt", ["route_id", "agency_id", "route_short_name", "route_long_name", "route_type", "route_color", "route_text_color"], routes)
 w("trips.txt", ["route_id", "service_id", "trip_id", "trip_headsign", "direction_id", "shape_id"], trips)
