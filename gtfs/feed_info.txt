@@ -1,2 +1,2 @@
 feed_publisher_name,feed_publisher_url,feed_lang,feed_start_date,feed_end_date,feed_version
-Afgeleid van autoserviciochia.com (niet officieel),https://autoserviciochia.com/urbano-2/,es,20261101,20271031,2026-10-31
+Derived from autoserviciochia.com (unofficial),https://github.com/ColombiaTransit/gtfs-bogota-auto-servicio-chia,es,20261101,20271031,2026-10-31

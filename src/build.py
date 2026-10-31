@@ -100,6 +100,67 @@ for rid, dest, layers, st, en, hw, price in ROUTES:
             freqs.append([tid, hms(s), hms(e_), vhw * 60, 0])
             report.append(f"{shp:8s} {km:5.1f} km  {tt:3d} min  {hms(s)}-{hms(e_ - 1)} elke {vhw} min")
 
+# ---------------------------------------------------------------------------
+# Intermunicipal routes (https://autoserviciochia.com/intermunicipal/)
+# Shapes and free-flow times from GraphHopper (src/fetch_intermunicipal.py).
+# ---------------------------------------------------------------------------
+inter = json.load(open(os.path.join(SP, "intermunicipal_shapes.json")))
+TRAFFIC_FACTOR = 1.5  # free-flow routing time -> scheduled running time
+
+INTER_STOPS = {
+    # stop_id: (name, lat, lon); CHIA reuses the urban terminal
+    "CHIA": ("TERMINAL", None, None),
+    "P170": ("Portal Norte (Calle 170)", 4.7545885, -74.0460432),
+    "COTA": ("Terminal Cota", 4.8123632, -74.0988734),
+    "CAJ": ("Cajicá – Parque Principal", 4.9172708, -74.0255304),
+    "SUBA": ("Portal Suba", 4.7468966, -74.0942909),
+    "GUAY": ("Guaymaral", 4.8075, -74.0447),
+}
+# route_id, shape key, origin, destination, start, end, headway (s), fare
+INTER_ROUTES = [
+    ("CH170", "CH170", "CHIA", "P170", "04:30", "21:46", 150, 3800),
+    ("CHCOT", "CHCOT", "CHIA", "COTA", "05:30", "22:00", 600, 3000),
+    ("CHCAJ", "CHCAJ", "CHIA", "CAJ", "04:55", "20:00", 210, 3400),
+    ("CHSUB", "CHSUB", "CHIA", "SUBA", "04:30", "20:30", 420, 3900),
+    ("CHGUA", "CHGUA", "CHIA", "GUAY", "05:30", "19:30", 600, 2900),
+    ("CAJ170", "CAJ170", "CAJ", "P170", "05:30", "22:00", 600, 4700),
+    ("COTSUB", "COTSUB", "COTA", "SUBA", "05:30", "22:00", 600, 3500),
+]
+SHORT = {"CHIA": "Chía", "P170": "Portal 170", "COTA": "Cota", "CAJ": "Cajicá", "SUBA": "Suba", "GUAY": "Guaymaral"}
+
+def inter_sid(k):
+    return "TERMINAL" if k == "CHIA" else f"I_{k}"
+
+for k, (name, lat, lon) in INTER_STOPS.items():
+    if k != "CHIA":
+        stops.append([inter_sid(k), name, f"{lat:.6f}", f"{lon:.6f}", "0", ""])
+
+for rid, key, o, dst, st, en, hw, price in INTER_ROUTES:
+    rid = f"I_{rid}"
+    routes.append([rid, "ASCH", f"{SHORT[o]} – {SHORT[dst]}", f"{SHORT[o]} – {SHORT[dst]} (intermunicipal)", 3, "", ""])
+    fid = f"F{price}"
+    fares[fid] = price
+    fare_rules.append([fid, rid])
+    for d, (a, b) in enumerate([(o, dst), (dst, o)]):
+        g = inter[f"{key}_{d}"]
+        pts = g["pts"]
+        shp = f"{rid}_{d}"
+        cum = 0.0
+        for i, p in enumerate(pts):
+            if i:
+                cum += dist(pts[i - 1], p)
+            shape_rows.append([shp, f"{p[1]:.5f}", f"{p[0]:.5f}", i + 1, f"{cum / 1000:.3f}"])
+        km = cum / 1000
+        tt = max(5, round(g["min"] * TRAFFIC_FACTOR))
+        tid = f"{shp}_T"
+        trips.append([rid, "DIARIO", tid, SHORT[b], d, shp])
+        stop_times.append([tid, "00:00:00", "00:00:00", inter_sid(a), 1, "0.000", 0])
+        stop_times.append([tid, hms(tt), hms(tt), inter_sid(b), 2, f"{km:.3f}", 0])
+        s = tmin(st) + (0 if d == 0 else tt)
+        e_ = tmin(en) + (0 if d == 0 else tt) + 1
+        freqs.append([tid, hms(s), hms(e_), hw, 0])
+        report.append(f"{shp:10s} {km:5.1f} km  {tt:3d} min  {hms(s)}-{hms(e_ - 1)} every {hw}s")
+
 w("agency.txt", ["agency_id", "agency_name", "agency_url", "agency_timezone", "agency_lang", "agency_phone"], agency)
 w("stops.txt", ["stop_id", "stop_name", "stop_lat", "stop_lon", "location_type", "parent_station"], stops)
 w("routes.txt", ["route_id", "agency_id", "route_short_name", "route_long_name", "route_type", "route_color", "route_text_color"], routes)
@@ -113,7 +174,7 @@ w("fare_attributes.txt", ["fare_id", "price", "currency_type", "payment_method",
   [[f, p, "COP", 0, 0, "ASCH"] for f, p in fares.items()])
 w("fare_rules.txt", ["fare_id", "route_id"], fare_rules)
 w("feed_info.txt", ["feed_publisher_name", "feed_publisher_url", "feed_lang", "feed_start_date", "feed_end_date", "feed_version"],
-  [["Afgeleid van autoserviciochia.com (niet officieel)", "https://autoserviciochia.com/urbano-2/", "es", "20261101", "20271031", "2026-10-31"]])
+  [["Derived from autoserviciochia.com (unofficial)", "https://github.com/ColombiaTransit/gtfs-bogota-auto-servicio-chia", "es", "20261101", "20271031", "2026-10-31"]])
 
 zp = os.path.join(ROOT, "gtfs.zip")
 with zipfile.ZipFile(zp, "w", zipfile.ZIP_DEFLATED) as z:

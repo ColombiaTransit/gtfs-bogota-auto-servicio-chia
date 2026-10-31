@@ -1,21 +1,41 @@
 # GTFS – Auto Servicio Chía (servicio urbano)
 
-Unofficial GTFS feed for the urban bus routes of **Auto Servicio Chía Ltda.** in Chía, Cundinamarca (Colombia).
+Unofficial GTFS feed for the bus routes of **Auto Servicio Chía Ltda.** in Chía, Cundinamarca (Colombia): urban routes within Chía and intermunicipal routes to Bogotá (Portal 170, Suba, Guaymaral), Cota and Cajicá.
 
 - Download: [`gtfs.zip`](gtfs.zip) (the unzipped files are in [`gtfs/`](gtfs/))
-- 17 routes, 19 stops, 36 trip patterns (outbound and return), frequency-based timetable
+- 24 routes (17 urban, 7 intermunicipal), 24 stops, 50 trip patterns (outbound and return), frequency-based timetable
 - Valid from 2026-11-01 to 2027-10-31
 
 ## Sources
 
 | Data | Source |
 |---|---|
-| Routes, first/last departure, headway, fares | https://autoserviciochia.com/urbano-2/ |
-| Route geometry (shapes) | GeoJSON layers of the route map at http://autoserviciochia.com/mapas-chia/index.html |
+| Urban routes: first/last departure, headway, fares | https://autoserviciochia.com/urbano-2/ |
+| Urban route geometry (shapes) | GeoJSON layers of the route map at http://autoserviciochia.com/mapas-chia/index.html |
+| Intermunicipal routes: first/last departure, headway, fares | https://autoserviciochia.com/intermunicipal/ |
+| Intermunicipal terminal locations | [OpenStreetMap](https://www.openstreetmap.org/) (Nominatim / Overpass) |
+| Intermunicipal route geometry and running times | [GraphHopper Routing API](https://docs.graphhopper.com/#tag/Routing-API) on OpenStreetMap data |
 
-The map layers consist of loose segments per direction. These were chained into one continuous line per direction, simplified with Douglas–Peucker (6 m tolerance) and rounded to 5 decimals. The result is in [`src/shapes.json`](src/shapes.json).
+The urban map layers consist of loose segments per direction. These were chained into one continuous line per direction, simplified with Douglas–Peucker (6 m tolerance) and rounded to 5 decimals. The result is in [`src/shapes.json`](src/shapes.json).
+
+The intermunicipal website publishes no map, so each route was routed terminal-to-terminal with GraphHopper (8 m simplification). The result is in [`src/intermunicipal_shapes.json`](src/intermunicipal_shapes.json) and can be regenerated with [`src/fetch_intermunicipal.py`](src/fetch_intermunicipal.py).
 
 ## Assumptions and limitations
+
+### Intermunicipal routes
+
+- **Shapes** are the fastest road route between the terminals, not necessarily the exact path the buses take.
+- **Running times** are GraphHopper's free-flow time × 1.5 to account for traffic and boarding.
+- **Headways** given as a range use the midpoint (2–3 min → 2.5 min, 3–4 min → 3.5 min); "approx. 10 min" is modelled as 10 min.
+- **Terminals**:
+  - *Portal 170* → TransMilenio Portal Norte (Autopista Norte, Calle 174).
+  - *Terminal Suba* → TransMilenio Portal Suba.
+  - *Terminal Cota* → the bus station "Terminal Urbano" in Cota (OSM).
+  - *Cajicá* → no terminal in OSM; the Parque Principal is used.
+  - *Guaymaral* → the website lists "Terminal Guaymaral → Guaymaral"; modelled as Chía ↔ Guaymaral with an approximate stop on the Autopista Norte.
+- Only the two terminals are included as stops; no intermediate stops are published.
+
+### Urban routes
 
 - **Stops**: the website publishes no stop locations. Each trip therefore has only two stops: *Terminal Urbano Chía* and the route's terminus (the end of the outbound shape).
 - **Running times**: estimated from shape length at 15 km/h.
@@ -34,7 +54,14 @@ The map layers consist of loose segments per direction. These were chained into 
 python3 src/build.py
 ```
 
-This writes `gtfs/*.txt` and `gtfs.zip`. Parameters (headways, times, fares, speed) are at the top of `src/build.py`.
+This writes `gtfs/*.txt` and `gtfs.zip`. Parameters (headways, times, fares, speed, traffic factor) are in `src/build.py`.
+
+To refresh the intermunicipal shapes (requires a [GraphHopper API key](https://www.graphhopper.com/), or `GH_URL` pointing at your own GraphHopper server):
+
+```bash
+GH_KEY=your-key python3 src/fetch_intermunicipal.py
+python3 src/build.py
+```
 
 ## Disclaimer
 
