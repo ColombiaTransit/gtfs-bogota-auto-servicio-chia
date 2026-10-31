@@ -66,3 +66,13 @@ python3 src/build.py
 ## Disclaimer
 
 This feed is not an official publication of Auto Servicio Chía Ltda. Data is derived from their public website and may be incomplete or out of date.
+
+### Matching OSM bus stops
+
+[`src/match_osm_stops.py`](src/match_osm_stops.py) matches bus stops from an [Overpass](https://overpass-turbo.eu/) export (raw OSM JSON) to the route shapes. Stops must lie within 25 m of the shape, on the right-hand side of the direction of travel, and at least 150 m apart. Bogotá SITP/TransMilenio stops are excluded.
+
+```bash
+python3 src/match_osm_stops.py path/to/overpass_export.json   # writes src/osm_stops.json
+```
+
+As of October 2026 OSM has very few bus stops mapped inside Chía, so the feed does not use these matches yet.
