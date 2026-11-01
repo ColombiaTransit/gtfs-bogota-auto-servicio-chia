@@ -2,7 +2,8 @@
 
 Unofficial GTFS feed for the bus routes of **Auto Servicio Chía Ltda.** in Chía, Cundinamarca (Colombia): urban routes within Chía and intermunicipal routes to Bogotá (Portal 170, Suba, Guaymaral), Cota and Cajicá.
 
-- Download: [`gtfs.zip`](gtfs.zip) (the unzipped files are in [`gtfs/`](gtfs/))
+- Download (validated, stable URL): https://github.com/ColombiaTransit/gtfs-bogota-auto-servicio-chia/releases/download/latest/gtfs.zip
+- The same feed is in [`gtfs.zip`](gtfs.zip) in the repository; the unzipped files are in [`gtfs/`](gtfs/)
 - 24 routes (17 urban, 7 intermunicipal), 43 stops, 50 trip patterns (outbound and return), frequency-based timetable
 - Valid from 2026-11-01 to 2027-10-31
 
@@ -82,6 +83,12 @@ Mapping bus stops in Chía in OpenStreetMap and re-running the steps below will 
   - *Centro Chía*: the website gives Despacho Guaymaral as origin; the map shows the route from the Terminal Urbano, which is what the feed uses.
 - *Cerca de Piedra / 20 de Julio* has two variants, alternating every 10 minutes each (combined headway 5 min).
 - The map layers "BalsaCapilla" and "Fusca" have no timetable on the website and are not included.
+
+## Release
+
+The workflow [`.github/workflows/release.yml`](.github/workflows/release.yml) runs on every push to `main` that changes `src/`, on the 1st of every month, and on demand (Actions → *Build, validate and release GTFS* → *Run workflow*). It rebuilds the feed with `src/build.py`, validates it with the [MobilityData GTFS validator](https://github.com/MobilityData/gtfs-validator) and updates the release `latest` with `gtfs.zip` and the validation report.
+
+The run fails, and the release is not updated, when the validator reports errors or when the service ends within 30 days. Extend the dates in `calendar.txt` / `feed_info.txt` in `src/build.py` before 2027-10-01.
 
 ## Regenerating
 
